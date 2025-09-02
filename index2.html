@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>भूजल निगरानी - Groundwater Monitor India</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .pulse-dot { animation: pulse 2s infinite; }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        .water-wave {
+            background: linear-gradient(45deg, #3b82f6, #1d4ed8, #2563eb);
+            background-size: 400% 400%;
+            animation: wave 3s ease-in-out infinite;
+        }
+        @keyframes wave {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
+    <!-- Header -->
+    <header class="bg-white shadow-lg border-b-4 border-blue-600">
+        <div class="max-w-7xl mx-auto px-4 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center">
+                        <svg class="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h1 class="text-2xl font-bold text-gray-800">भूजल निगरानी</h1>
+                        <p class="text-sm text-gray-600">Real-time Groundwater Monitoring</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="flex items-center space-x-2 bg-green-100 px-3 py-2 rounded-full">
+                        <div class="w-3 h-3 bg-green-500 rounded-full pulse-dot"></div>
+                        <span class="text-sm font-medium text-green-800">DLWR Active</span>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-sm text-gray-600">Last Update</p>
+                        <p class="text-sm font-semibold" id="lastUpdate">--:--</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="max-w-7xl mx-auto px-4 py-6">
+        <!-- Quick Stats -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-blue-500">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">Active Stations</p>
+                        <p class="text-3xl font-bold text-blue-600" id="activeStations">247</p>
+                    </div>
+                    <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                        <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-green-500">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">Avg Water Level</p>
+                        <p class="text-3xl font-bold text-green-600" id="avgLevel">12.4m</p>
+                    </div>
+                    <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                        <svg class="w-6 h-6 text-green-600" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-yellow-500">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">Quality Index</p>
+                        <p class="text-3xl font-bold text-yellow-600" id="qualityIndex">7.2/10</p>
+                    </div>
+                    <div class="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center">
+                        <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-red-500">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">Critical Alerts</p>
+                        <p class="text-3xl font-bold text-red-600" id="alerts">3</p>
+                    </div>
+                    <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
+                        <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Live Monitoring Stations -->
+            <div class="lg:col-span-2 bg-white rounded-xl shadow-lg p-6">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-xl font-bold text-gray-800">Live Monitoring Stations</h2>
+                    <div class="flex space-x-2">
+                        <button onclick="filterStations('all')" class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors" id="filterAll">All</button>
+                        <button onclick="filterStations('critical')" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-300 transition-colors" id="filterCritical">Critical</button>
+                        <button onclick="filterStations('normal')" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-300 transition-colors" id="filterNormal">Normal</button>
+                    </div>
+                </div>
+
+                <div class="space-y-4" id="stationsList">
+                    <!-- Stations will be populated by JavaScript -->
+                </div>
+            </div>
+
+            <!-- Right Sidebar -->
+            <div class="space-y-6">
+                <!-- Water Level Trend -->
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <h3 class="text-lg font-bold text-gray-800 mb-4">Water Level Trend</h3>
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-600">This Week</span>
+                            <span class="text-sm font-semibold text-green-600">↑ 2.3%</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div class="bg-green-500 h-2 rounded-full" style="width: 65%"></div>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-600">This Month</span>
+                            <span class="text-sm font-semibold text-red-600">↓ 1.8%</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div class="bg-red-500 h-2 rounded-full" style="width: 45%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Regional Overview -->
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <h3 class="text-lg font-bold text-gray-800 mb-4">Regional Status</h3>
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+                            <div>
+                                <p class="font-medium text-gray-800">Punjab</p>
+                                <p class="text-sm text-gray-600">45 stations</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-sm font-semibold text-green-600">Good</p>
+                                <p class="text-xs text-gray-500">15.2m avg</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-yellow-50 rounded-lg">
+                            <div>
+                                <p class="font-medium text-gray-800">Rajasthan</p>
+                                <p class="text-sm text-gray-600">67 stations</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-sm font-semibold text-yellow-600">Moderate</p>
+                                <p class="text-xs text-gray-500">8.7m avg</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-red-50 rounded-lg">
+                            <div>
+                                <p class="font-medium text-gray-800">Tamil Nadu</p>
+                                <p class="text-sm text-gray-600">38 stations</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-sm font-semibold text-red-600">Critical</p>
+                                <p class="text-xs text-gray-500">4.1m avg</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- DLWR System Status -->
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <h3 class="text-lg font-bold text-gray-800 mb-4">DLWR System</h3>
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-600">Network Status</span>
+                            <span class="text-sm font-semibold text-green-600">Online</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-600">Data Transmission</span>
+                            <span class="text-sm font-semibold text-green-600">98.7%</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-600">Battery Status</span>
+                            <span class="text-sm font-semibold text-yellow-600">85%</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-600">Next Sync</span>
+                            <span class="text-sm font-semibold text-blue-600" id="nextSync">--:--</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sample station data
+        const stations = [
+            {
+                id: 'DL001',
+                name: 'Delhi Central',
+                location: 'New Delhi, DL',
+                waterLevel: 15.2,
+                quality: 8.1,
+                status: 'normal',
+                lastUpdate: '2 min ago',
+                temperature: 24.5,
+                ph: 7.2,
+                tds: 245
+            },
+            {
+                id: 'MH002',
+                name: 'Mumbai Suburban',
+                location: 'Mumbai, MH',
+                waterLevel: 8.7,
+                quality: 6.8,
+                status: 'normal',
+                lastUpdate: '1 min ago',
+                temperature: 28.1,
+                ph: 6.9,
+                tds: 312
+            },
+            {
+                id: 'TN003',
+                name: 'Chennai Metro',
+                location: 'Chennai, TN',
+                waterLevel: 3.2,
+                quality: 4.5,
+                status: 'critical',
+                lastUpdate: '3 min ago',
+                temperature: 31.2,
+                ph: 6.1,
+                tds: 485
+            },
+            {
+                id: 'KA004',
+                name: 'Bangalore Tech',
+                location: 'Bangalore, KA',
+                waterLevel: 11.8,
+                quality: 7.9,
+                status: 'normal',
+                lastUpdate: '1 min ago',
+                temperature: 26.3,
+                ph: 7.4,
+                tds: 198
+            },
+            {
+                id: 'GJ005',
+                name: 'Ahmedabad Industrial',
+                location: 'Ahmedabad, GJ',
+                waterLevel: 6.1,
+                quality: 5.2,
+                status: 'critical',
+                lastUpdate: '4 min ago',
+                temperature: 29.8,
+                ph: 6.3,
+                tds: 421
+            },
+            {
+                id: 'PB006',
+                name: 'Ludhiana Agricultural',
+                location: 'Ludhiana, PB',
+                waterLevel: 18.5,
+                quality: 8.7,
+                status: 'normal',
+                lastUpdate: '2 min ago',
+                temperature: 22.1,
+                ph: 7.6,
+                tds: 156
+            }
+        ];
+
+        let currentFilter = 'all';
+
+        function renderStations(filter = 'all') {
+            const stationsList = document.getElementById('stationsList');
+            const filteredStations = filter === 'all' ? stations : stations.filter(s => s.status === filter);
+            
+            stationsList.innerHTML = filteredStations.map(station => {
+                const statusColor = station.status === 'critical' ? 'red' : 'green';
+                const statusBg = station.status === 'critical' ? 'bg-red-50' : 'bg-green-50';
+                const statusText = station.status === 'critical' ? 'Critical' : 'Normal';
+                
+                return `
+                    <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow ${statusBg}">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-3 h-3 bg-${statusColor}-500 rounded-full pulse-dot"></div>
+                                <div>
+                                    <h4 class="font-semibold text-gray-800">${station.name}</h4>
+                                    <p class="text-sm text-gray-600">${station.location} • ID: ${station.id}</p>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <span class="px-2 py-1 bg-${statusColor}-100 text-${statusColor}-800 text-xs font-medium rounded-full">${statusText}</span>
+                                <p class="text-xs text-gray-500 mt-1">${station.lastUpdate}</p>
+                            </div>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            <div class="text-center">
+                                <p class="text-xs text-gray-500">Water Level</p>
+                                <p class="text-lg font-bold text-blue-600">${station.waterLevel}m</p>
+                            </div>
+                            <div class="text-center">
+                                <p class="text-xs text-gray-500">Quality</p>
+                                <p class="text-lg font-bold text-green-600">${station.quality}/10</p>
+                            </div>
+                            <div class="text-center">
+                                <p class="text-xs text-gray-500">Temperature</p>
+                                <p class="text-lg font-bold text-orange-600">${station.temperature}°C</p>
+                            </div>
+                            <div class="text-center">
+                                <p class="text-xs text-gray-500">TDS</p>
+                                <p class="text-lg font-bold text-purple-600">${station.tds} ppm</p>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-3 pt-3 border-t border-gray-200">
+                            <div class="flex items-center justify-between text-sm">
+                                <span class="text-gray-600">pH Level: <span class="font-medium">${station.ph}</span></span>
+                                <button onclick="viewDetails('${station.id}')" class="text-blue-600 hover:text-blue-800 font-medium">View Details →</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function filterStations(filter) {
+            currentFilter = filter;
+            
+            // Update button styles
+            document.querySelectorAll('[id^="filter"]').forEach(btn => {
+                btn.className = 'px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-300 transition-colors';
+            });
+            
+            const activeBtn = document.getElementById(`filter${filter.charAt(0).toUpperCase() + filter.slice(1)}`);
+            if (activeBtn) {
+                activeBtn.className = 'px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors';
+            }
+            
+            renderStations(filter);
+        }
+
+        function viewDetails(stationId) {
+            const station = stations.find(s => s.id === stationId);
+            if (station) {
+                alert(`Detailed view for ${station.name}\n\nWater Level: ${station.waterLevel}m\nQuality Index: ${station.quality}/10\nTemperature: ${station.temperature}°C\npH: ${station.ph}\nTDS: ${station.tds} ppm\n\nDLWR Status: Active\nLast Transmission: ${station.lastUpdate}`);
+            }
+        }
+
+        function updateTime() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('en-IN', { 
+                hour12: false, 
+                hour: '2-digit', 
+                minute: '2-digit' 
+            });
+            
+            document.getElementById('lastUpdate').textContent = timeString;
+            
+            // Next sync in 5 minutes
+            const nextSync = new Date(now.getTime() + 5 * 60000);
+            document.getElementById('nextSync').textContent = nextSync.toLocaleTimeString('en-IN', { 
+                hour12: false, 
+                hour: '2-digit', 
+                minute: '2-digit' 
+            });
+        }
+
+        function simulateDataUpdate() {
+            // Simulate real-time data updates
+            stations.forEach(station => {
+                // Small random variations
+                station.waterLevel += (Math.random() - 0.5) * 0.2;
+                station.quality += (Math.random() - 0.5) * 0.1;
+                station.temperature += (Math.random() - 0.5) * 0.5;
+                
+                // Keep values in realistic ranges
+                station.waterLevel = Math.max(0, Math.min(25, station.waterLevel));
+                station.quality = Math.max(0, Math.min(10, station.quality));
+                station.temperature = Math.max(15, Math.min(40, station.temperature));
+                
+                // Round to 1 decimal place
+                station.waterLevel = Math.round(station.waterLevel * 10) / 10;
+                station.quality = Math.round(station.quality * 10) / 10;
+                station.temperature = Math.round(station.temperature * 10) / 10;
+            });
+            
+            // Update display
+            renderStations(currentFilter);
+            
+            // Update summary stats
+            const avgLevel = stations.reduce((sum, s) => sum + s.waterLevel, 0) / stations.length;
+            const avgQuality = stations.reduce((sum, s) => sum + s.quality, 0) / stations.length;
+            const criticalCount = stations.filter(s => s.status === 'critical').length;
+            
+            document.getElementById('avgLevel').textContent = `${avgLevel.toFixed(1)}m`;
+            document.getElementById('qualityIndex').textContent = `${avgQuality.toFixed(1)}/10`;
+            document.getElementById('alerts').textContent = criticalCount;
+        }
+
+        // Initialize
+        renderStations();
+        updateTime();
+        
+        // Update time every minute
+        setInterval(updateTime, 60000);
+        
+        // Simulate data updates every 30 seconds
+        setInterval(simulateDataUpdate, 30000);
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'978ae3d084f61c4f',t:'MTc1Njc5MzkwNS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
